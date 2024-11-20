@@ -1,6 +1,7 @@
 import { tokenize } from './lexer'
 import { parse } from './parser'
 import { processAST } from './processor'
+import { render } from './renderer'
 
 const sourceCode = `
     page "My Website" {
@@ -26,3 +27,5 @@ console.log('ast', ast);
 
 const output = processAST(ast);
 console.log('output', output);
+
+render(output);
