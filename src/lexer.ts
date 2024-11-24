@@ -1,7 +1,7 @@
 import { Token, TokenType } from './types'
 
-const regex = /\s*(page|header|section|footer|title|subtitle|description|text|style|\{|\}|=|:[a-zA-Z][a-zA-Z0-9_-]*|".*?")\s*/g;
-const keywords = ["page", "header", "section", "footer", "title", "subtitle", "description", "text", "style"];
+const regex = /\s*(page|header|section|footer|title|subtitle|description|image|text|style|src|alt|\{|\}|=|:[a-zA-Z][a-zA-Z0-9_-]*|".*?")\s*/g;
+const keywords = ["page", "header", "section", "footer", "title", "subtitle", "description", "image", "text", "style", "src", "alt"];
 
 export const tokenize = (input: string): Token[] => {
     const tokens: Token[] = [];

@@ -4,7 +4,7 @@ function generateRandomId(length = 8): string {
     return 's' + Math.random().toString(36).substr(2, length);
 }
 
-export function processAST(ast: ASTNode): { html: string; css: string; js?: string } {
+export function processAST(ast: ASTNode): { html: string; css: string; js: string | null, imageSources: string[] } {
     if (ast.type !== "Page") {
         throw new Error("The root node must be of type 'Page'");
     }
@@ -12,6 +12,7 @@ export function processAST(ast: ASTNode): { html: string; css: string; js?: stri
     const htmlParts: string[] = [];
     const cssParts: string[] = [];
     const jsParts: string[] = [];
+    const imageSources: string[] = [];
 
     // Process children recursively
     function processNode(node: ASTNode): string {
@@ -38,6 +39,12 @@ export function processAST(ast: ASTNode): { html: string; css: string; js?: stri
             const text = properties.text || '';
 
             return `<${htmlTag} class="${elementId}" > ${text} </${htmlTag}>`;
+        }
+
+        if (nodeType === "image") {
+            const imageSrc = 'assets/' + properties.src;
+            imageSources.push(imageSrc);
+            return `<img class="${elementId}" src="/${imageSrc}" alt="${properties.alt}" />`;
         }
 
         throw new Error(`Unsupported node type: ${node.type}`);
@@ -73,6 +80,7 @@ export function processAST(ast: ASTNode): { html: string; css: string; js?: stri
     return {
         html: htmlParts.join("\n"),
         css: cssParts.join("\n"),
-        js: jsParts.length > 0 ? jsParts.join("\n") : undefined,
+        js: jsParts.length > 0 ? jsParts.join("\n") : null,
+        imageSources
     };
 }

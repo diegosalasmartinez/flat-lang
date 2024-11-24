@@ -75,7 +75,7 @@ export function parse(tokens: Token[]): ASTNode {
         }
 
         if (token.type === TokenType.KEYWORD &&
-            ["title", "subtitle", "description"].includes(token.value)
+            ["title", "subtitle", "description", "image"].includes(token.value)
         ) {
             const blockType = token.value
             current++;
@@ -118,7 +118,7 @@ export function parse(tokens: Token[]): ASTNode {
         }
 
         if (
-            (token.type === TokenType.KEYWORD && token.value === "style") ||
+            (token.type === TokenType.KEYWORD && ["style", "src", "alt"].includes(token.value)) ||
             token.type === TokenType.PROP
         ) {
             const keyToken = tokens[current];
