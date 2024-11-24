@@ -1,5 +1,9 @@
 import { ASTNode } from "./types";
 
+function generateRandomId(length = 8): string {
+    return 's' + Math.random().toString(36).substr(2, length);
+}
+
 export function processAST(ast: ASTNode): { html: string; css: string; js?: string } {
     if (ast.type !== "Page") {
         throw new Error("The root node must be of type 'Page'");
@@ -12,23 +16,28 @@ export function processAST(ast: ASTNode): { html: string; css: string; js?: stri
     // Process children recursively
     function processNode(node: ASTNode): string {
         const nodeType = node.type.toLowerCase();
+        const elementId = generateRandomId();
+        const properties = node.properties || {};
 
-        if (nodeType === "header" || nodeType === "section" || nodeType === "footer") {
-            const properties = node.properties || {};
-            const content = Object.entries(properties)
-                .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
-                .join("\n");
-
-            // Optional: Add CSS for each block
+        if (properties.style) {
             cssParts.push(`
-                .${nodeType} {
-                    padding: 20px;
-                    border: 1px solid #ccc;
-                    margin: 10px 0;
+                .${elementId} {
+                    ${properties.style}
                 }
             `);
+        }
 
-            return `<div class="${nodeType}">${content}</div>`;
+        if (nodeType === "header" || nodeType === "section" || nodeType === "footer") {
+            const htmlTag = nodeType;
+
+            return `<${htmlTag} class="${elementId}">${node.children?.map(processNode).join('')}</${htmlTag}>`;
+        }
+
+        if (nodeType === "title" || nodeType === "subtitle" || nodeType === "description") {
+            const htmlTag = nodeType === "title" ? "h1" : nodeType === "subtitle" ? "h2" : "p";
+            const text = properties.text || '';
+
+            return `<${htmlTag} class="${elementId}" > ${text} </${htmlTag}>`;
         }
 
         throw new Error(`Unsupported node type: ${node.type}`);

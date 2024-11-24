@@ -6,26 +6,38 @@ import { render } from './renderer'
 const sourceCode = `
     page "My Website" {
         header {
-            title = "Welcome to My Website"
-            description = "This is a simple static site."
+            title {
+                text = "Welcome to My Website"
+                style = "color: red"
+            }
+            description {
+                text = "This is a simple static site."
+            }
         }
         section {
-            title = "About Me"
-            content = "I am a web developer."
+            subtitle {
+                text = "About Me"
+            }
+            description {
+                text = "I am a web developer."
+            }
         }
         footer {
-            text = "Created with my custom language."
+            title {
+                text = "Contact Me"
+                style = "color: blue"
+            }
+            description {
+                text = "Created with my custom language."
+            }
         }
     }
 `;
 
 const tokens = tokenize(sourceCode);
-console.log('tokens', tokens);
 
 const ast = parse(tokens);
-console.log('ast', ast);
 
 const output = processAST(ast);
-console.log('output', output);
 
 render(output);
