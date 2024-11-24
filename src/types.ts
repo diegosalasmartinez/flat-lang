@@ -1,5 +1,6 @@
 export enum TokenType {
     KEYWORD = "KEYWORD",
+    PROP = "PROP",
     BRACE = "BRACE",
     EQUALS = "EQUALS",
     STRING = "STRING",

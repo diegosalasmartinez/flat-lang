@@ -3,7 +3,7 @@ import { Token, TokenType, ASTNode } from "./types";
 export function parse(tokens: Token[]): ASTNode {
     let current = 0;
 
-    function walk(): ASTNode {
+    function walk(): { node: ASTNode, prop: { key: string, value: string } | null } {
         let token = tokens[current];
 
         // Parse "page" keyword
@@ -18,18 +18,25 @@ export function parse(tokens: Token[]): ASTNode {
             const node: ASTNode = {
                 type: "Page",
                 name: pageNameToken.value,
+                properties: {},
                 children: [],
             };
+            node.properties = {};
 
             current++; // Skip the page name
             current++; // Skip the opening brace "{"
 
             while (tokens[current]?.type !== TokenType.BRACE || tokens[current]?.value !== "}") {
-                node.children!.push(walk());
+                const { node: childNode, prop } = walk();
+                if (prop) {
+                    node.properties[prop.key] = prop.value;
+                } else {
+                    node.children!.push(childNode);
+                }
             }
 
             current++; // Skip the closing brace "}"
-            return node;
+            return { node, prop: null };
         }
 
         // Parse section blocks (header, section, footer)
@@ -47,21 +54,28 @@ export function parse(tokens: Token[]): ASTNode {
 
             const node: ASTNode = {
                 type: blockType,
+                properties: {},
                 children: [],
             };
+            node.properties = {};
 
             current++; // Skip the opening brace "{"
 
             while (tokens[current]?.type !== TokenType.BRACE || tokens[current]?.value !== "}") {
-                node.children!.push(walk());
+                const { node: childNode, prop } = walk();
+                if (prop) {
+                    node.properties[prop.key] = prop.value;
+                } else {
+                    node.children!.push(childNode);
+                }
             }
 
             current++; // Skip the closing brace "}"
-            return node;
+            return { node, prop: null };
         }
 
         if (token.type === TokenType.KEYWORD &&
-            ["title", "subtitle", "description", "style"].includes(token.value)
+            ["title", "subtitle", "description"].includes(token.value)
         ) {
             const blockType = token.value
             current++;
@@ -100,7 +114,36 @@ export function parse(tokens: Token[]): ASTNode {
             }
 
             current++; // Skip the closing brace "}"
-            return node;
+            return { node, prop: null };
+        }
+
+        if (
+            (token.type === TokenType.KEYWORD && token.value === "style") ||
+            token.type === TokenType.PROP
+        ) {
+            const keyToken = tokens[current];
+            current++;
+
+            const equalsToken = tokens[current];
+            if (equalsToken.type !== TokenType.EQUALS) {
+                throw new Error(`Expected '=', got ${equalsToken.type}`);
+            }
+
+            const node: ASTNode = {
+                type: '',
+                properties: {},
+                children: [],
+            };
+
+            current++; // Move to value
+
+            const valueToken = tokens[current];
+            if (valueToken.type !== TokenType.STRING) {
+                throw new Error(`Expected a string value, got ${valueToken.type}`);
+            }
+
+            current++; // Move to the next key-value pair or the closing brace
+            return { node, prop: { key: keyToken.value, value: valueToken.value } };
         }
 
         throw new Error(`Unexpected token: ${token.type}`);
@@ -112,5 +155,5 @@ export function parse(tokens: Token[]): ASTNode {
         throw new Error("Parsing did not consume all tokens.");
     }
 
-    return ast;
+    return ast.node;
 }

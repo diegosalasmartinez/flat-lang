@@ -43,6 +43,16 @@ export function processAST(ast: ASTNode): { html: string; css: string; js?: stri
         throw new Error(`Unsupported node type: ${node.type}`);
     }
 
+    const properties = ast.properties || {};
+    if (properties.style) {
+
+        cssParts.push(`
+            body {
+                ${properties.style}
+            }
+        `);
+    }
+
     // Process the Page node
     htmlParts.push(`
         <!DOCTYPE html>
