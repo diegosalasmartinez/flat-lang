@@ -35,9 +35,7 @@ const sourceCode = `
 `;
 
 const tokens = tokenize(sourceCode);
-
 const ast = parse(tokens);
-
 const output = processAST(ast);
 
 render(output);
