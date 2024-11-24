@@ -24,7 +24,10 @@ export const sourceCode = `
             image {
                 src = "images/dumb-cat.jpg"
                 alt = "Dumb Cat"
-                style = "width: 100%; height: auto;"
+                style = "width: 50%; height: auto;"
+            }
+            description {
+                text = "Yes, it's literally me."
             }
         }
 
